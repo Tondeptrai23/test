@@ -1,5 +1,6 @@
 package com.tkpm.sms.infrastructure.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tkpm.sms.domain.repository.*;
 import com.tkpm.sms.domain.service.validators.*;
 import org.springframework.context.annotation.Bean;
@@ -7,26 +8,20 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class AppConfig {
+    @Bean
+    public ObjectMapper objectMapper() {
+        return new ObjectMapper();
+    }
 
     @Bean
     public FacultyDomainValidator facultyValidator(FacultyRepository facultyRepository) {
         return new FacultyDomainValidator(facultyRepository);
     }
 
-    @Bean
-    public AddressDomainValidator addressValidator() {
-        return new AddressDomainValidator();
-    }
-
-    @Bean
     public IdentityDomainValidator identityValidator(IdentityRepository identityRepository) {
         return new IdentityDomainValidator(identityRepository);
     }
 
-    @Bean
-    public PhoneNumberValidator phoneValidator() {
-        return new PhoneNumberValidator();
-    }
 
     @Bean
     public ProgramDomainValidator programValidator(ProgramRepository programRepository) {
@@ -34,8 +29,8 @@ public class AppConfig {
     }
 
     @Bean
-    public StudentDomainValidator studentValidator(StudentRepository studentRepository) {
-        return new StudentDomainValidator(studentRepository);
+    public StudentDomainValidator studentValidator(StudentRepository studentRepository, SettingRepository settingRepository) {
+        return new StudentDomainValidator(studentRepository, settingRepository);
     }
 
     @Bean

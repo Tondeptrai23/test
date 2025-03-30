@@ -6,6 +6,7 @@ import com.tkpm.sms.domain.model.Status;
 import com.tkpm.sms.domain.exception.DuplicateResourceException;
 import com.tkpm.sms.domain.exception.InvalidStatusTransitionException;
 import com.tkpm.sms.domain.exception.InvalidStudentException;
+import com.tkpm.sms.domain.repository.SettingRepository;
 import com.tkpm.sms.domain.repository.StudentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,13 +19,7 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class StudentDomainValidator {
     private final StudentRepository studentRepository;
-
-    // Email validation pattern
-    private static final Pattern EMAIL_PATTERN =
-            Pattern.compile("^[a-zA-Z0-9_+&*-]+(?:\\.[a-zA-Z0-9_+&*-]+)*@(?:[a-zA-Z0-9-]+\\.)+[a-zA-Z]{2,7}$");
-
-    // Name validation pattern (letters and spaces only)
-    private static final Pattern NAME_PATTERN = Pattern.compile("^[\\p{L}\\s]*$");
+    private final SettingRepository settingRepository;
 
     public void validateStudentIdUniqueness(String studentId) {
         if (studentRepository.existsByStudentId(studentId)) {
@@ -60,19 +55,9 @@ public class StudentDomainValidator {
         }
     }
 
-    public void validateEmail(String email) {
-        if (email == null || !EMAIL_PATTERN.matcher(email).matches()) {
-            throw new InvalidStudentException("Invalid email format");
-        }
-    }
+    public void validateEmailDomain(String email) {
+        var validDomain = settingRepository.getEmailSetting();
 
-    public void validateName(String name) {
-        if (name == null || !NAME_PATTERN.matcher(name).matches()) {
-            throw new InvalidStudentException("Name must contain only letters and spaces");
-        }
-    }
-
-    public void validateEmailDomain(String email, String validDomain) {
         if (!email.endsWith(validDomain)) {
             throw new InvalidStudentException(
                     String.format("Email domain is not supported, only %s is allowed", validDomain)
